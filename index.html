@@ -1,95 +1,223 @@
 <!DOCTYPE html>
 <html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<style>
+	.axis path,
+	.axis line{
+		fill: none;
+		stroke: black;
+		shape-rendering: crispEdges;
+	}
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Randomnumber : 生成随机数的程序">
+	.axis text {
+		font-family: sans-serif;
+		font-size: 11px;
+	}
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+	.MyRect {
+		fill: steelblue;
+	}
 
-    <title>Randomnumber</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/kjm19940711/RandomNumber">View on GitHub</a>
-
-          <h1 id="project_title">Randomnumber</h1>
-          <h2 id="project_tagline">生成随机数的程序</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/kjm19940711/RandomNumber/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/kjm19940711/RandomNumber/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <p>&lt;!DOCTYPE html&gt;
+	.MyText {
+		fill: white;
+		text-anchor: middle;
+	}
 
 
-</p>
+	rect {
+  		fill: none;
+  		pointer-events: all;
+	}
+
+	circle {
+  		fill: none;
+ 		stroke-width: 2.5px;
+	}
+</style>
+
+<body>
+	<p style="font-family:courier">生成随机数程序 version 1.0 Powered By Junming Ke<p>
+	<p>修改日志：<br>1)对结果换行显示，便于比较；<br>2)加了点击时的时间；<br>3)采用d3.js对生成的结果作图<p>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>  
+	<script>
+	var x1;
+	var Num=[];
+	
+	function RanNum()
+	{
+		
+
+		if (x1===""||isNaN(x1))
+		{
+			x1=0;
+		}
+		else
+		{
+			x1=x1+1;
+		}
+		var x = parseInt((Math.random()*100));
+		var br = document.createElement("br");
+		var t = new Date().getHours();
+		var m = new Date().toLocaleTimeString();
+		//alert(x);
+		
+		Num[x1] = x;
+		// x1=x1+1; 
+		// var i;
+		var node = document.createTextNode(m + " 第" + x1 + "次的结果为：" + x);
+		document.getElementById('result').appendChild(node);
+		document.getElementById('result').appendChild(br);
 
 
-    .axis path,
-    .axis line{
-        fill: none;
-        stroke: black;
-        shape-rendering: crispEdges;
-    }
 
-    .axis text {
-        font-family: sans-serif;
-        font-size: 11px;
-    }
+		if (x1>0) 
+			{
+				document.getElementById('result01').innerHTML = "";
+			};
 
-    .MyRect {
-        fill: steelblue;
-    }
+		//画布大小
+	var width = 300;
+	var height = 300;
 
-    .MyText {
-        fill: white;
-        text-anchor: middle;
-    }
+	//在 body 里添加一个 SVG 画布	
+	
+	
+	var svg = d3.select("#result01")
+		.append("svg")
+		.attr("width", width)
+		.attr("height", height);
+	//画布周边的空白
+	var padding = {left:30, right:30, top:20, bottom:20};
+
+	//定义一个数组
+
+	var dataset =Num;
+		
+	//x轴的比例尺
+	var xScale = d3.scale.ordinal()
+		.domain(d3.range(dataset.length))
+		.rangeRoundBands([0, width - padding.left - padding.right]);
+
+	//y轴的比例尺
+	var yScale = d3.scale.linear()
+		.domain([0,d3.max(dataset)])
+		.range([height - padding.top - padding.bottom, 0]);
+
+	//定义x轴
+	var xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom");
+		
+	//定义y轴
+	var yAxis = d3.svg.axis()
+		.scale(yScale)
+		.orient("left");
+
+	//矩形之间的空白
+	var rectPadding = 4;
+
+	//添加矩形元素
+	var rects = svg.selectAll(".MyRect")
+		.data(dataset)
+		.enter()
+		.append("rect")
+		.attr("class","MyRect")
+		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		.attr("x", function(d,i){
+			return xScale(i) + rectPadding/2;
+		} )
+		.attr("width", xScale.rangeBand() - rectPadding )
+		.attr("y",function(d){
+			var min = yScale.domain()[0];
+			return yScale(min);
+		})
+		.attr("height", function(d){
+			return 0;
+		})
+		.transition()
+		.delay(function(d,i){
+			return i * 200;
+		})
+		.duration(2000)
+		.ease("bounce")
+		.attr("y",function(d){
+			return yScale(d);
+		})
+		.attr("height", function(d){
+			return height - padding.top - padding.bottom - yScale(d);
+		});
+
+	//添加文字元素
+	var texts = svg.selectAll(".MyText")
+		.data(dataset)
+		.enter()
+		.append("text")
+		.attr("class","MyText")
+		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		.attr("x", function(d,i){
+			return xScale(i) + rectPadding/2;
+		} )
+		.attr("dx",function(){
+			return (xScale.rangeBand() - rectPadding)/2;
+		})
+		.attr("dy",function(d){
+			return 20;
+		})
+		.text(function(d){
+			return d;
+		})
+		.attr("y",function(d){
+			var min = yScale.domain()[0];
+			return yScale(min);
+		})
+		.transition()
+		.delay(function(d,i){
+			return i * 200;
+		})
+		.duration(2000)
+		.ease("bounce")
+		.attr("y",function(d){
+			return yScale(d);
+		});
+
+	//添加x轴
+	svg.append("g")
+		.attr("class","axis")
+		.attr("transform","translate(" + padding.left + "," + (height - padding.bottom) + ")")
+		.call(xAxis); 
+		
+	//添加y轴
+	svg.append("g")
+		.attr("class","axis")
+		.attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		.call(yAxis);
 
 
-    rect {
-        fill: none;
-        pointer-events: all;
-    }
-
-    circle {
-        fill: none;
-        stroke-width: 2.5px;
-    }
 
 
-<p></p>
-    <p>生成随机数程序 version 1.0 Powered By Junming Ke</p><p>
-    </p><p>修改日志：<br>1)对结果换行显示，便于比较；<br>2)加了点击时的时间；<br>3)采用d3.js对生成的结果作图</p><p>
-    <br>
-      </p>
+	}
 
-<p>
-</p>
-      </section>
-    </div>
+	</script>
+	<button type='button' onclick="RanNum()" style="width:180px;height:30px;background-color: #00FF00">生成随机数</button>
+	<!--<div>
+	<table border="0" cellpadding="0" cellspacing="0" style="margin-left:auto; margin-right:auto;">
+	<tr>
+	<td>-->
+		<div id="result">
+		</div>
+		<div id="result01">
+		</div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Randomnumber maintained by <a href="https://github.com/kjm19940711">kjm19940711</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
+	<!--</td>
+	</tr>
+	</table> 
+	</div>-->
+	
+	<script>
 
-    
+	
+</script>  
 
-  </body>
+</body>
 </html>
