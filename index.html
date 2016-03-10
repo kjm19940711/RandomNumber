@@ -663,7 +663,7 @@
 	<p style="font-family:courier">生成随机数程序 version 2.0 Powered By Junming Ke</p>
 	<p>修改日志：<br>1)提供了更多button的CSS样式</p>
 	<p>加入交互</p>
-	<div class="linechart_div" id="linechart_div"></div>
+	<div class="linechart_div" id="linechart_div" style="width:300px;height:400px"></div>
 
 	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>  
 	<script src="js/prefixfree.min.js"></script>
@@ -701,9 +701,9 @@
 
 		if (x1>0) 
 			{
-				document.getElementById('result01').innerHTML = "";
+				document.getElementById('linechart_div').innerHTML = "";
 			};
-	Bar_Chart_fun(Num,"次数","值",400,270,120,150,d3.select("#linechart_div"));
+	Bar_Chart_fun(Num,"次数","值",300,400,0,150,d3.select("#linechart_div"));
 	}
 
 	</script>
